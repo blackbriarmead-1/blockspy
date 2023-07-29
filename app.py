@@ -15,7 +15,7 @@ connection = Main.initializeDB()
 ms = datetime.now()
 unix_timestamp = round(time.mktime(ms.timetuple()) * 1000)
 print(unix_timestamp)
-if(True):
+if(not True):
     tiles = Main.getTiles(-25,-25,24,24,5)
     print("tiles have been retrieved")
     
@@ -67,3 +67,19 @@ print("time elapsed to decompress and unpack diff file: {}".format(total))'''
 #image = Main.getImageFromDiffIndex(-25,-25,5,3,connection)
 
 #image.show()
+all_tiles = []
+l = -25
+h = 24
+for y in range(l,h+1):
+    for x in range(l,h+1):
+        highest = Main.getHighestRefreshIndex(x,y,5,connection)
+        image = Main.getImageFromDiffIndex(x,y,5,highest,connection)
+        new_tile = Tile.Tile(image,x,y,5)
+        all_tiles.append(new_tile)
+
+combined = Main.combine_tiles(all_tiles,l,h)
+with open("combined_new.png","wb") as f:
+    byteIO = io.BytesIO()
+    combined.save(byteIO, format='PNG')
+    f.write(byteIO.getvalue())
+combined.show()

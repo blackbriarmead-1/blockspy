@@ -121,10 +121,9 @@ def getImageFromDiffIndex(x,y,zoom,index,connection):
     #get original png
     originalTile = getTile(x,y,zoom,connection)
     newimage = originalTile.image
-    print("toTraverse:",toTraverse)
+    #print("toTraverse:",toTraverse)
     for start,stop in toTraverse:
         diff = getDiffByIndex(x, y, zoom, start, stop, connection)
-        print(diff)
         #apply this diff to the original png
         newimage = applydiff(diff,newimage)
     return(newimage)
@@ -133,8 +132,6 @@ def generateDiff(previous_image: Image.Image,current_image: Image.Image):
     width, height = previous_image.size
     array1 = np.array(previous_image)
     array2 = np.array(current_image)
-    print(array1)
-    print(array2)
     output = Diff.Diff()
     i = 0
     for y in range(height):
@@ -263,6 +260,28 @@ def combine_images(images, l, h):
             x = i // (h-l+1)
             y = i % (h-l+1)
             img = img.convert('RGB')
+            combined_array[x*tileheight:(x+1)*tileheight, y*tilewidth:(y+1)*tilewidth] = np.array(img)
+
+    combined_image = Image.fromarray(combined_array)
+    return(combined_image)
+
+#combine images into a single image. Returns a PIL Image object
+def combine_tiles(tiles, l, h):
+    tilewidth = tiles[0].image.size[0]
+    tileheight = tiles[0].image.size[1]
+
+    total_width = (h-l+1)*tilewidth
+    total_height = (h-l+1)*tileheight
+    print("total_width:",total_width)
+
+    combined_array = np.zeros((total_height, total_width, 4), dtype=np.uint8)
+    for i, tile in enumerate(tiles):
+        if tile is not None:
+            x = tile.x-l
+            y = tile.y-l
+            print("x",x)
+            print("y",y)
+            img = tile.image.convert('RGBA')
             combined_array[x*tileheight:(x+1)*tileheight, y*tilewidth:(y+1)*tilewidth] = np.array(img)
 
     combined_image = Image.fromarray(combined_array)
