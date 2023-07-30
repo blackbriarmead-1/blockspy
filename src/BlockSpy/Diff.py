@@ -1,15 +1,37 @@
 from io import BytesIO
 import struct
+from PIL import Image
+import sys
+sys.path.append("..")
+import numpy as np
 
 class Diff:
     def __init__(self, packed = None):
         self.diffarray = []
 
         if not packed == None:
+            #print("packed is not none - getting upacked representation")
             self.diffarray = self.getUnpackedRepresentation(packed)
+            #print(self.diffarray)
+        else:
+            pass
+            #print("no packed diff, initializing with empty array")
 
     def __str__(self):
         return("Diff Object. \nnumber of differences: {}".format(len(self.diffarray)))
+
+    def getDiffImage(self,x,y):
+        #print("x",x)
+        #print("y",y)
+        image = Image.new(mode="RGBA", size=(x,y),color=(0,0,0,0))
+        return(self.applydiff(image))
+        
+    #apply a diff to an image and return the new image
+    def applydiff(self,image):
+        array = np.array(image)
+        for x,y,r,g,b,a in self.diffarray:
+            array[y][x] = (r,g,b,a)
+        return(Image.fromarray(array))
 
     def addDiff(self,x,y,r,g,b,a):
         self.diffarray.append((x,y,r,g,b,a))

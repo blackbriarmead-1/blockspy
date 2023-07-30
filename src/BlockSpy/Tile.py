@@ -10,9 +10,12 @@ class Tile:
         self.zoom = zoom
         if(hash == None):
             #calculate image hash if not supplied
-            byteIO = BytesIO()
-            image.save(byteIO, format='PNG')
-            self.hash = hashlib.md5(byteIO.getvalue()).hexdigest()
+            #byteIO = BytesIO()
+            #image.save(byteIO, format='PNG')
+            #self.hash = hashlib.md5(byteIO.getvalue()).hexdigest()
+            print("generating hash for image")
+            self.hash = self.hashImage(image)
+            print("hash:",self.hash)
             self.latest_hash = self.hash
         else:
             #use provided hash
@@ -36,6 +39,7 @@ class Tile:
     
     def updateImage(self,new_image):
         self.image = new_image
-        byteIO = BytesIO()
-        new_image.save(byteIO, format='PNG')
-        self.hash = hashlib.md5(byteIO.getvalue()).hexdigest()
+        self.hashImage(new_image)
+
+    def hashImage(self,image):
+        return(hashlib.md5(image.tobytes()).hexdigest())
