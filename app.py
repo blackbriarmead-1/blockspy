@@ -67,4 +67,4 @@ def outputimage(l,h,file_name, latest = True):
     #combined.show()
 
 #outputimage(-25,24,"aaaoriginal.png",latest=False)
-outputimage(-25,24,"aaanew3.png",latest=True)
+#outputimage(-25,24,"aaanew4.png",latest=True)

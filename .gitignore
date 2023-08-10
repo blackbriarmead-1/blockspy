@@ -1,0 +1,6 @@
+outputs/
+*/__pycache__/
+*/node_modules
+*.db
+.vscode/
+*.o

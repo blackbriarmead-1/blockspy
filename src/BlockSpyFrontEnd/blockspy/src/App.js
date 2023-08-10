@@ -9,6 +9,8 @@ const mapBounds = [
   [-2*s,s],
   [2*s,-s],
 ]
+
+const centerPos = [36.54, -39.4]
 const zoom = 5
 const zoom_offset = -2
 function App() {
@@ -23,12 +25,7 @@ function App() {
         zoomOffset={zoom_offset}
 
       />
-      <Marker position={[36.54,-39.4]}>
-        Text
-      </Marker>
-      <ScaleControl>
-
-      </ScaleControl>
+      <ScaleControl/>
     </MapContainer>
   );
 }

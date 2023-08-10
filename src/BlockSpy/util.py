@@ -146,8 +146,29 @@ def getLatestImage(x,y,zoom,connection):
     highestIndex = getHighestRefreshIndex(x,y,zoom,connection)
     return(getImageFromDiffIndex(x,y,zoom,highestIndex,connection))
 
+def generateDiffNew(previous_image,current_image):
+    #print("generating diff")
+    width, height = previous_image.size
+    array1 = np.array(previous_image)
+    array2 = np.array(current_image)
+    #print("array1",array1)
+    #print("array2",array2)
+    #print("are arrays the same? ",np.array_equal(array1,array2))
+    output = Diff.Diff()
+    # Use vectorized operations to find the pixels that changed
+    diff = array1 != array2 # Get a boolean array that indicates which pixels are different
+    #print("nonzero: ",diff.nonzero())
+    y, x, _ = diff.nonzero() # Get the indices of the non-zero elements (y, x coordinates of changed pixels)
+    rgba = array2[y, x] # Get the RGBA values of those pixels from the second array
+    # Loop over the changed pixels and add them to the output
+    for i in range(len(y)):
+        r, g, b, a = rgba[i]
+        output.addDiff(x[i], y[i], r, g, b, a)
+        #print("x: {}, y: {} image not the same. new color: {}".format(x[i],y[i],(r,g,b,a)))
+    return(output)
+
 def generateDiff(previous_image,current_image):
-    print("generating diff")
+    #print("generating diff")
     width, height = previous_image.size
     array1 = np.array(previous_image)
     array2 = np.array(current_image)
@@ -236,7 +257,7 @@ def updateTile(new_tile, timestamp, connection):
                 old_image = getImageFromDiffIndex(new_tile.x,new_tile.y,new_tile.zoom,index,connection)
 
                 #generate a diff from index to new_index
-                new_diff = generateDiff(old_image,new_tile.image)
+                new_diff = generateDiffNew(old_image,new_tile.image)
                 #print("new diff array",new_diff.diffarray)
                 #write this diff to the database with the required extra info
                 addDiffToDB(new_tile.x,new_tile.y,new_tile.zoom,new_diff,index,new_index,connection,map_refresh_timestamp=timestamp)
@@ -329,7 +350,7 @@ def combine_tiles(tiles, l, h):
             #print("x",x)
             #print("y",y)
             img = tile.image.convert('RGBA')
-            combined_array[x*tileheight:(x+1)*tileheight, y*tilewidth:(y+1)*tilewidth] = np.array(img)
+            combined_array[y*tileheight:(y+1)*tileheight, x*tilewidth:(x+1)*tilewidth] = np.array(img)
 
     combined_image = Image.fromarray(combined_array)
     return(combined_image)
